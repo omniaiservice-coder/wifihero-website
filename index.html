@@ -4074,7 +4074,7 @@ window.whImg = function(key, fallback, cls){
   window.WH_vid = (function(){ var k='wh_vid',v=''; try{v=localStorage.getItem(k)||'';}catch(e){} if(!v){v='v_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); try{localStorage.setItem(k,v);}catch(e){}} return v; })();
   window.WH_track = function(type, o){ o=o||{}; try{ if(window.WH_SB) window.WH_SB.rpc('log_event', { p_type:type, p_visitor:window.WH_vid, p_device:window.WH_device, p_provider:o.provider||'', p_plan:o.plan||'', p_area:o.area||'' }).then(function(r){ if(r&&r.error)console.warn('track:',r.error.message); }, function(){}); }catch(e){} };
   try{ if(!sessionStorage.getItem('wh_visit')){ sessionStorage.setItem('wh_visit','1'); window.WH_track('visit'); } }catch(e){ window.WH_track('visit'); }
-  document.addEventListener('click', function(e){ var t=e.target; if(!t||!t.closest) return; var a=t.closest('a[href*="wa.me"], a[href*="whatsapp"]'); if(a){ window.WH_track('whatsapp_click'); return; } var b=t.closest('button,a'); if(b && /find my plan|查找我的配套/i.test(b.textContent||'')){ window.WH_track('find_my_plan'); } }, true);
+  document.addEventListener('click', function(e){ if(!e.isTrusted) return; var t=e.target; if(!t||!t.closest) return; var a=t.closest('a[href*="wa.me"], a[href*="whatsapp"]'); if(a){ window.WH_track('whatsapp_click'); return; } var b=t.closest('button,a'); if(b && /find my plan|查找我的配套/i.test(b.textContent||'')){ window.WH_track('find_my_plan'); } }, true);
 })();
 </script>
 </body>
