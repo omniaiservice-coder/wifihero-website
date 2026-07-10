@@ -1379,8 +1379,8 @@ $('checkBtn').addEventListener('click', function(){
 /* ---------- coverage check -> recommendation -> result ---------- */
 function startCoverage(){
   showScreen('loading');
-  var msgs = ['Scanning 6 networks at your address','Comparing available plans','Matching your profile'];
-  var mi = 0; var iv = setInterval(function(){ mi = (mi+1) % msgs.length; $('loadsub').textContent = msgs[mi]; }, 900);
+  var msgs = ['Running a real coverage check at your address','Checking Unifi / TM fibre ports','Checking TIME, Maxis & Allo fibre','Checking U Mobile & Yes 5G coverage','Real checks take 2–3 minutes — hang tight','Almost there — confirming your results'];
+  var mi = 0; var iv = setInterval(function(){ mi = (mi+1) % msgs.length; $('loadsub').textContent = msgs[mi]; }, 3200);
   checkCoverage(userData.address).then(function(cov){
     userData.coverage = cov;
     setTimeout(function(){ clearInterval(iv); renderResult(); }, 400);
@@ -1388,15 +1388,75 @@ function startCoverage(){
 }
 
 /* =====================================================================
-   BACKEND STUBS — replace these with real API calls.
-   Each returns the SAME shape the UI expects. No UI changes needed.
+   REAL COVERAGE CHECK — the office worker checks every network for real
+   (fibre ports + U Mobile + Yes 5G) and writes the result into Supabase
+   (website_submissions.available_ports). WH_saveLead saves the lead the
+   moment the form is submitted; here we poll the read-only RPC
+   get_coverage_by_address until the result lands (usually 1.5-3 min).
+   Customers only ever see PACKAGES — never the raw port data.
    ===================================================================== */
+var COV_POLL_MS = 5000;      // poll every 5s
+var COV_WAIT_MS = 240000;    // stop waiting after 4 min (UI falls back gracefully)
+
+// worker format: "<fibre> | U Mobile: <techs> | YES: <techs>   (checked in Ns)"
+// e.g. "TM / Allo | U Mobile: Ultra5G, 4G | YES: 5G   (checked in 95s)"
+// "still checking" = that network's check didn't finish -> UNKNOWN, never a "no".
+function parsePortsText(t){
+  var out = { fibre:{done:false,ports:[]}, umobile:{done:false,techs:[]}, yes:{done:false,techs:[]} };
+  if(!t) return out;
+  t = String(t).replace(/\(checked in \d+s\)\s*$/i,'').trim();
+  if(/^no address provided/i.test(t)) return out;
+  t.split('|').forEach(function(seg){
+    seg = seg.trim(); if(!seg) return;
+    var low = seg.toLowerCase(), v, lv;
+    if(low.indexOf('u mobile:') === 0){
+      v = seg.slice(seg.indexOf(':')+1).trim(); lv = v.toLowerCase();
+      if(lv === 'still checking') return;
+      out.umobile.done = true;
+      if(lv !== 'none') out.umobile.techs = v.split(',').map(function(x){ return x.trim().toUpperCase().replace(/\s+/g,''); });
+    } else if(low.indexOf('yes:') === 0){
+      v = seg.slice(seg.indexOf(':')+1).trim(); lv = v.toLowerCase();
+      if(lv === 'still checking') return;
+      out.yes.done = true;
+      if(lv !== 'none') out.yes.techs = v.split(',').map(function(x){ return x.trim().toUpperCase(); });
+    } else {
+      if(low === 'fibre: still checking') return;
+      out.fibre.done = true;
+      if(low !== 'no fibre') out.fibre.ports = seg.split('/').map(function(x){ return x.trim().toUpperCase(); });
+    }
+  });
+  return out;
+}
+function coverageFromPorts(p, address){
+  var nets = [];
+  if(p.fibre.ports.indexOf('TM')>=0)   nets.push('Unifi (TM)');
+  if(p.fibre.ports.indexOf('ALLO')>=0) nets.push('Allo');
+  if(p.fibre.ports.indexOf('TIME')>=0) nets.push('TIME');
+  if(p.fibre.ports.indexOf('NGBB')>=0) nets.push('Maxis');
+  if(p.umobile.techs.indexOf('ULTRA5G')>=0 || p.umobile.techs.indexOf('5G')>=0) nets.push('U Mobile 5G');
+  if(p.yes.techs.indexOf('5G')>=0) nets.push('Yes 5G');
+  var pending = !(p.fibre.done && p.umobile.done && p.yes.done);
+  var quality = p.fibre.ports.length ? 'Excellent'
+              : nets.length ? 'Good'
+              : (p.umobile.techs.length || p.yes.techs.length) ? 'Fair'
+              : pending ? '' : 'Limited';
+  return { available: nets.length>0 || pending, quality:quality, networks:nets, ports:p, pending:pending, address:address };
+}
 function checkCoverage(address){
-  // TODO: POST address to backend; return real coverage.
   return new Promise(function(resolve){
-    setTimeout(function(){
-      resolve({ available:true, quality:'Excellent', networks:['Unifi','TIME','Maxis'], address:address });
-    }, 2200);
+    var waited = 0;
+    function finish(text){ resolve(coverageFromPorts(parsePortsText(text), address)); }
+    function again(){ waited += COV_POLL_MS; if(waited >= COV_WAIT_MS) finish(null); else setTimeout(poll, COV_POLL_MS); }
+    function poll(){
+      try{
+        if(!window.WH_SB){ finish(null); return; }
+        window.WH_SB.rpc('get_coverage_by_address', { p_full_address: address||'' }).then(function(r){
+          var t = (!r.error && r.data) ? String(r.data).trim() : '';
+          if(t) finish(t); else again();
+        }, again);
+      }catch(e){ finish(null); }
+    }
+    poll();
   });
 }
 // SAMPLE catalogue (placeholder — real catalogue comes from backend)
@@ -3645,6 +3705,30 @@ var SAMPLE_CATALOGUE = [
 ];
 try{ window.WH_PACKAGES = SAMPLE_CATALOGUE; }catch(e){}
 try{ window.WH_DEVICES = maxisAddonDevices; }catch(e){}
+// Coverage gate — hides ONLY what the real check CONFIRMED unavailable.
+// "still checking"/unknown never hides a package (the team verifies manually).
+function coverageAllows(p, cov){
+  if(!cov || !cov.ports) return true;
+  var ports = cov.ports, prov = (p.provider||'').toLowerCase(), inf = (p.infra||'').toLowerCase();
+  if(p.service_type === 'broadband_5g'){
+    if(prov.indexOf('u mobile')>=0 || prov.indexOf('umobile')>=0)
+      return !ports.umobile.done || ports.umobile.techs.indexOf('ULTRA5G')>=0 || ports.umobile.techs.indexOf('5G')>=0;
+    if(prov === 'yes') return !ports.yes.done || ports.yes.techs.indexOf('5G')>=0;
+    return true;                                    // other 5G networks: no check signal -> keep
+  }
+  if(!ports.fibre.done) return true;                // fibre still checking -> never hide fibre plans
+  var f = ports.fibre.ports;
+  if(prov === 'unifi')      return f.indexOf('TM')>=0;
+  if(prov === 'time')       return f.indexOf('TIME')>=0;
+  if(prov === 'celcomdigi') return f.indexOf('TM')>=0 || f.indexOf('ALLO')>=0;  // CelcomDigi fibre rides TM/Allo
+  if(prov === 'maxis'){                             // plain Maxis = NGBB; infra says if it rides HSBA(TM)/ALLO/CTS/SACOFA instead
+    if(f.indexOf('NGBB')>=0 && !/excl[^)]*ngbb/.test(inf)) return true;
+    if(f.indexOf('TM')>=0 && /hsba|cts|sacofa/.test(inf)) return true;
+    if(f.indexOf('ALLO')>=0 && /allo/.test(inf)) return true;
+    return false;
+  }
+  return true;                                      // unknown provider -> keep
+}
 // Eligibility filter — shows ONLY packages the customer qualifies for, then ranks the
 // most relevant to their answers first so the top 3 cards fit their situation.
 function eligiblePackages(d){
@@ -3662,6 +3746,7 @@ function eligiblePackages(d){
       if (p.eligible_postpaid_provider && p.eligible_postpaid_provider.length && pp && p.eligible_postpaid_provider.indexOf(pp) < 0) return false;
     }
     if (ct === 'transfer_user' && isCurrent(p.provider)) return false;   // switchers must move to a DIFFERENT provider than their current one
+    if (!coverageAllows(p, d.coverage)) return false;                    // real coverage result (confirmed-unavailable only)
     return true;
   });
   function score(p){
@@ -3749,7 +3834,10 @@ function submitApplication(data){
 function buildReasons(rec, alts){
   var r = [];
   // coverage
-  r.push('Available at your address' + (userData.coverage && userData.coverage.quality ? ' — ' + userData.coverage.quality.toLowerCase() + ' coverage' : '') + '.');
+  if (userData.coverage && userData.coverage.pending && !(userData.coverage.networks||[]).length)
+    r.push('Coverage is still being confirmed at your address — our team verifies before installation.');
+  else
+    r.push('Available at your address' + (userData.coverage && userData.coverage.quality ? ' — ' + userData.coverage.quality.toLowerCase() + ' coverage' : '') + '.');
   // eligibility (why THEY qualify)
   if (userData.postpaid === 'yes' && userData.postpaidProvider && rec && rec.postpaid_required === 'yes')
     r.push("You're eligible with your existing " + userData.postpaidProvider + ' postpaid.');
@@ -3777,7 +3865,7 @@ function renderResult(){
   var rec = getRecommendedPackage(userData);
   var alts = getAlternativePackages(userData);
   var reasons = buildReasons(rec, alts);
-  $('resultSub').textContent = 'Based on your answers and ' + (userData.coverage ? userData.coverage.quality.toLowerCase() : '') + ' coverage at "' + (userData.address||'') + '".';
+  $('resultSub').textContent = 'Based on your answers' + (userData.coverage && userData.coverage.quality ? ' and ' + userData.coverage.quality.toLowerCase() + ' coverage' : '') + ' at "' + (userData.address||'') + '".';
   if(!rec){ $('resultBody').innerHTML='<div class="reccard" style="text-align:center"><span class="badge">Eligibility</span><h3 class="rec-name" style="margin-top:8px">No matching package yet</h3><p style="color:var(--muted);line-height:1.6;margin:12px 0 0">Based on your answers, none of our current packages match your eligibility. Tap WhatsApp and our team will help you directly.</p></div>'; $('resultSub').textContent=''; showScreen('result'); return; }
   function _dr(k,v){ return '<div class="dr"><span>'+k+'</span><b>'+(v||'—')+'</b></div>'; }
   function _chips(p){ var c=''; if(/7/.test(p.router||''))c+='<span class="rchip" style="color:#c9b3ff;background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.45)">📶 WiFi 7 Router</span>'; if(p.promotion)c+='<span class="rchip">🎉 '+p.promotion+'</span>'; if(p.free_gift&&p.free_gift!=='—')c+='<span class="rchip">🎁 '+p.free_gift+'</span>'; if(p.cashback&&p.cashback!=='—')c+='<span class="rchip">💰 '+p.cashback+' cashback</span>'; if(p.installation&&/free/i.test(p.installation))c+='<span class="rchip">🔧 Free installation</span>'; return c?'<div class="rec-chips">'+c+'</div>':''; }
