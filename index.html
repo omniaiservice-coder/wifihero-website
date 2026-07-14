@@ -571,28 +571,7 @@ footer{border-top:1px solid rgba(255,255,255,.08);padding:40px 5vw;color:var(--m
 .w7-badge{display:inline-flex;align-items:center;gap:5px;background:linear-gradient(135deg,#8b5cf6,#6d28d9);color:#fff;font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.04em;padding:5px 10px;border-radius:999px}
 .w7-row>span:last-child{font-size:11px;color:#c9b3ff}
 @media(max-width:768px){nav{height:72px}.logo{font-size:31px}.links{font-size:12px}}
-/* ===== surprise promo popup ===== */
-@keyframes promoIn{0%{opacity:0;transform:scale(.82) translateY(34px)}60%{transform:scale(1.03)}100%{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes promoSpark{0%,100%{transform:scale(1) rotate(-6deg)}50%{transform:scale(1.18) rotate(6deg)}}
-#promo-modal{position:fixed;inset:0;z-index:1400;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.74);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);padding:20px}
-#promo-modal.open{display:flex}
-.promo-card{position:relative;max-width:430px;width:100%;background:linear-gradient(160deg,#180f1c,#0a0a0c);border:1px solid rgba(230,0,18,.4);border-radius:24px;padding:34px 28px 26px;text-align:center;box-shadow:0 30px 90px rgba(0,0,0,.6),0 0 70px rgba(230,0,18,.16);animation:promoIn .6s cubic-bezier(.2,.9,.3,1.3)}
-#promo-x{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.08);border:0;color:#fff;font-size:16px;cursor:pointer}
-#promo-x:hover{background:rgba(230,0,18,.3)}
-.promo-spark{font-size:34px;animation:promoSpark 1.8s ease-in-out infinite;display:inline-block}
-.promo-art{display:flex;align-items:flex-end;justify-content:center;gap:20px;margin:6px 0 14px}
-.promo-card h3{font-family:var(--disp);font-size:24px;font-weight:800;margin:0 0 10px}
-.promo-line1{font-size:15px;color:#eee;margin:0 0 14px}.promo-line1 b{color:#fff}
-.promo-deal{display:flex;flex-direction:column;align-items:center;gap:2px;background:linear-gradient(135deg,rgba(230,0,18,.18),transparent);border:1px solid var(--line);border-radius:16px;padding:12px;margin:0 0 14px}
-.promo-deal span{font-family:var(--mono);font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
-.promo-deal b{font-family:var(--disp);font-size:40px;font-weight:800;color:var(--red);line-height:1}.promo-deal b i{font-size:16px;font-style:normal;color:#fff}
-.promo-line2{font-size:13px;color:#c9b3ff;margin:0 0 18px}.promo-line2 b{color:#fff}
-.promo-cta{display:flex;flex-direction:column;gap:10px}
-.promo-btn{padding:14px;border-radius:13px;font-family:var(--disp);font-weight:700;font-size:15px;cursor:pointer;border:1px solid var(--glass-brd);background:rgba(255,255,255,.05);color:#fff}
-.promo-btn.primary{background:linear-gradient(135deg,var(--red),#a3000d);border:0}
-.promo-btn:hover{transform:translateY(-2px)}
 .promo-fine{font-size:10px;color:var(--dim);margin-top:14px}
-@media(max-width:768px){.promo-card{padding:30px 20px 22px}.promo-deal b{font-size:34px}}
 /* ===== real photo slots ===== */
 .wh-photo{border-radius:10px;object-fit:contain;display:block}
 .tvimg{width:100%;height:auto;border-radius:8px}
@@ -663,6 +642,84 @@ html.lite,html.lite *{cursor:auto !important}
 #pf-root .cov-limit-in{border:1px solid var(--line);background:rgba(230,0,18,.08);border-radius:14px;padding:16px;text-align:left;margin-bottom:12px}
 #pf-root .cov-limit-in b{font-family:var(--disp);font-size:15px}
 #pf-root .cov-limit-in p{color:var(--muted);font-size:13px;line-height:1.6;margin:8px 0 14px}
+/* ===== Motion polish pass (Emil Kowalski craft) ===== */
+:root{ --ease-out:cubic-bezier(.22,1,.36,1); --ease-in-out:cubic-bezier(.77,0,.175,1); }
+/* Tactile press feedback — deliberate press, system snaps back fast */
+@media (hover:hover) and (pointer:fine){
+  .btn:active, .prov-card:active, .pl-btn:active, .promo-btn:active,
+  #pf-root .applybtn:active, #pf-root .choice:active, #pf-root .altcard:active,
+  .foot-social a:active, .social-float a:active{
+    transform:scale(.97) !important;
+    transition:transform .1s var(--ease-out) !important;
+  }
+}
+/* Card lifts must not stick after a tap on touch devices (false :hover) */
+@media (hover:none){
+  .card:hover, .rv-card:hover, .prov-card:hover, .stat:hover, .brand:hover,
+  #pf-root .choice:hover, #pf-root .altcard:hover, .foot-social a:hover, .social-float a:hover{
+    transform:none;
+  }
+}
+/* Subtle staggered rise for the browse grids (once, on open) */
+@media (prefers-reduced-motion:no-preference){
+  #plans-overlay.open .prov-card, #plans-overlay.open .plan-card{ animation:wh-rise .5s var(--ease-out) backwards; }
+  #plans-overlay.open .prov-card:nth-child(1),#plans-overlay.open .plan-card:nth-child(1){animation-delay:.02s}
+  #plans-overlay.open .prov-card:nth-child(2),#plans-overlay.open .plan-card:nth-child(2){animation-delay:.06s}
+  #plans-overlay.open .prov-card:nth-child(3),#plans-overlay.open .plan-card:nth-child(3){animation-delay:.10s}
+  #plans-overlay.open .prov-card:nth-child(4),#plans-overlay.open .plan-card:nth-child(4){animation-delay:.14s}
+  #plans-overlay.open .prov-card:nth-child(5),#plans-overlay.open .plan-card:nth-child(5){animation-delay:.18s}
+  #plans-overlay.open .prov-card:nth-child(6),#plans-overlay.open .plan-card:nth-child(6){animation-delay:.22s}
+  #plans-overlay.open .prov-card:nth-child(n+7),#plans-overlay.open .plan-card:nth-child(n+7){animation-delay:.26s}
+  @keyframes wh-rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+}
+/* ===== Bolder, more visible motion (user requested) ===== */
+:root{ --ease-back:cubic-bezier(.34,1.28,.5,1); }
+@media (prefers-reduced-motion:no-preference){
+  .reveal{ transition:opacity .8s var(--ease-out), transform .85s var(--ease-back), filter .7s ease !important; }
+  .reveal[data-anim="up"]{ transform:translateY(66px) }
+  .reveal[data-anim="left"]{ transform:translateX(-80px) }
+  .reveal[data-anim="right"]{ transform:translateX(80px) }
+  .reveal[data-anim="scale"]{ transform:scale(.8) }
+  .reveal[data-anim="blur"]{ filter:blur(18px); transform:translateY(40px) }
+  .reveal[data-anim="rotate"]{ transform:translateY(60px) rotate(-6deg) }
+  .reveal.in{ transform:none !important; filter:none !important }
+  .stagger>*{ transform:translateY(44px) scale(.94); transition:opacity .7s var(--ease-out), transform .75s var(--ease-back) }
+  .stagger.in>*{ transform:none; transition-delay:calc(var(--i,0)*110ms) }
+}
+@media (hover:hover) and (pointer:fine){
+  .card{ transition:transform .35s var(--ease-back),border-color .3s,box-shadow .3s,background .3s }
+  .card:hover{ transform:translateY(-18px) scale(1.05) !important; box-shadow:0 30px 80px rgba(var(--glow),.5) !important }
+  .stat{ transition:transform .35s var(--ease-back),box-shadow .3s }
+  .stat:hover{ transform:scale(1.1) !important; box-shadow:0 0 60px rgba(var(--glow),.35) !important }
+  .rv-card:hover{ transform:translateY(-14px) scale(1.02) !important; box-shadow:0 28px 66px rgba(var(--glow),.4) !important }
+  .prov-card{ transition:transform .35s var(--ease-back),border-color .3s,box-shadow .3s }
+  .prov-card:hover{ transform:translateY(-12px) scale(1.03) !important }
+  /* press feedback stays winning over the bolder hovers */
+  .btn:active,.prov-card:active,.pl-btn:active,.promo-btn:active,.card:active,
+  #pf-root .applybtn:active,#pf-root .choice:active,#pf-root .altcard:active{
+    transform:scale(.97) !important; transition:transform .1s var(--ease-out) !important;
+  }
+}
+/* ===== Scroll-smoothness pass — touch / small screens (desktop stays bold) ===== */
+@media (hover:none), (max-width:900px){
+  /* strip the remaining GPU-heavy backdrop-blur (the #1 scroll-repaint cost) */
+  #plans-overlay, #pf-root .glasscard, #pf-root .choice, #pf-root .altcard, #pf-root .bubble,
+  .plan-card, .prov-card, .dev-card, .altcard, .reccard, .m-menu{
+    backdrop-filter:none !important; -webkit-backdrop-filter:none !important;
+  }
+  #plans-overlay, .m-menu, .plan-card, .prov-card, .altcard{ background:rgba(14,14,16,.96) !important; }
+  /* blur-filter entrances are expensive to animate — keep the slide, drop the blur, calm the overshoot */
+  .reveal{ transition:opacity .55s ease, transform .55s cubic-bezier(.2,.7,.2,1) !important; }
+  .reveal[data-anim="blur"]{ filter:none !important; transform:translateY(28px) !important; }
+  .reveal[data-anim="up"]{ transform:translateY(30px) !important; }
+  .reveal[data-anim="scale"]{ transform:scale(.92) !important; }
+  .reveal[data-anim="left"]{ transform:translateX(-40px) !important; }
+  .reveal[data-anim="right"]{ transform:translateX(40px) !important; }
+  .reveal[data-anim="rotate"]{ transform:translateY(30px) !important; }
+  .stagger>*{ transform:translateY(20px) scale(.98) !important; transition:opacity .5s ease, transform .5s cubic-bezier(.2,.7,.2,1) !important; }
+  /* pause purely-ambient infinite motion that competes with the scroll thread */
+  .orbit,.rays,.wifi-signals span,.floatdot,.logo span,.particles{ animation:none !important; }
+}
 </style>
 <script>
 /* lite-mode: weak device / in-app browser / reduced-motion -> disable heavy GPU effects */
@@ -1379,8 +1436,8 @@ $('checkBtn').addEventListener('click', function(){
 /* ---------- coverage check -> recommendation -> result ---------- */
 function startCoverage(){
   showScreen('loading');
-  var msgs = ['Running a real coverage check at your address','Checking Unifi / TM fibre ports','Checking TIME, Maxis & Allo fibre','Checking U Mobile & Yes 5G coverage','Real checks take 2–3 minutes — hang tight','Almost there — confirming your results'];
-  var mi = 0; var iv = setInterval(function(){ mi = (mi+1) % msgs.length; $('loadsub').textContent = msgs[mi]; }, 3200);
+  var msgs = ['Scanning 6 networks at your address','Comparing available plans','Matching your profile'];
+  var mi = 0; var iv = setInterval(function(){ mi = (mi+1) % msgs.length; $('loadsub').textContent = msgs[mi]; }, 900);
   checkCoverage(userData.address).then(function(cov){
     userData.coverage = cov;
     setTimeout(function(){ clearInterval(iv); renderResult(); }, 400);
@@ -1388,75 +1445,52 @@ function startCoverage(){
 }
 
 /* =====================================================================
-   REAL COVERAGE CHECK — the office worker checks every network for real
-   (fibre ports + U Mobile + Yes 5G) and writes the result into Supabase
-   (website_submissions.available_ports). WH_saveLead saves the lead the
-   moment the form is submitted; here we poll the read-only RPC
-   get_coverage_by_address until the result lands (usually 1.5-3 min).
-   Customers only ever see PACKAGES — never the raw port data.
+   REAL COVERAGE CHECK (BUILD BRIEF v2, 2026-07-14)
+   Asks Supabase for a real check via request_coverage(), then polls
+   get_coverage() every 3s until the PC worker finishes (measured
+   87-117s, capped ~3 min). Same return shape the UI expects, plus:
+     ports   : ["TM","Allo",...] real fibre ports   (null = unknown)
+     pending : true when the check failed / timed out
+   SAFETY (non-negotiable): any failure / timeout / unknown -> pending:true
+   -> the port filter shows EVERYTHING. Never a false "no".
    ===================================================================== */
-var COV_POLL_MS = 5000;      // poll every 5s
-var COV_WAIT_MS = 240000;    // stop waiting after 4 min (UI falls back gracefully)
-
-// worker format: "<fibre> | U Mobile: <techs> | YES: <techs>   (checked in Ns)"
-// e.g. "TM / Allo | U Mobile: Ultra5G, 4G | YES: 5G   (checked in 95s)"
-// "still checking" = that network's check didn't finish -> UNKNOWN, never a "no".
-function parsePortsText(t){
-  var out = { fibre:{done:false,ports:[]}, umobile:{done:false,techs:[]}, yes:{done:false,techs:[]} };
-  if(!t) return out;
-  t = String(t).replace(/\(checked in \d+s\)\s*$/i,'').trim();
-  if(/^no address provided/i.test(t)) return out;
-  t.split('|').forEach(function(seg){
-    seg = seg.trim(); if(!seg) return;
-    var low = seg.toLowerCase(), v, lv;
-    if(low.indexOf('u mobile:') === 0){
-      v = seg.slice(seg.indexOf(':')+1).trim(); lv = v.toLowerCase();
-      if(lv === 'still checking') return;
-      out.umobile.done = true;
-      if(lv !== 'none') out.umobile.techs = v.split(',').map(function(x){ return x.trim().toUpperCase().replace(/\s+/g,''); });
-    } else if(low.indexOf('yes:') === 0){
-      v = seg.slice(seg.indexOf(':')+1).trim(); lv = v.toLowerCase();
-      if(lv === 'still checking') return;
-      out.yes.done = true;
-      if(lv !== 'none') out.yes.techs = v.split(',').map(function(x){ return x.trim().toUpperCase(); });
-    } else {
-      if(low === 'fibre: still checking') return;
-      out.fibre.done = true;
-      if(low !== 'no fibre') out.fibre.ports = seg.split('/').map(function(x){ return x.trim().toUpperCase(); });
-    }
-  });
-  return out;
-}
-function coverageFromPorts(p, address){
-  var nets = [];
-  if(p.fibre.ports.indexOf('TM')>=0)   nets.push('Unifi (TM)');
-  if(p.fibre.ports.indexOf('ALLO')>=0) nets.push('Allo');
-  if(p.fibre.ports.indexOf('TIME')>=0) nets.push('TIME');
-  if(p.fibre.ports.indexOf('NGBB')>=0) nets.push('Maxis');
-  if(p.umobile.techs.indexOf('ULTRA5G')>=0 || p.umobile.techs.indexOf('5G')>=0) nets.push('U Mobile 5G');
-  if(p.yes.techs.indexOf('5G')>=0) nets.push('Yes 5G');
-  var pending = !(p.fibre.done && p.umobile.done && p.yes.done);
-  var quality = p.fibre.ports.length ? 'Excellent'
-              : nets.length ? 'Good'
-              : (p.umobile.techs.length || p.yes.techs.length) ? 'Fair'
-              : pending ? '' : 'Limited';
-  return { available: nets.length>0 || pending, quality:quality, networks:nets, ports:p, pending:pending, address:address };
-}
 function checkCoverage(address){
+  var FAIL = { available:true, quality:'Checking', networks:[], ports:null, pending:true, coveragestatus:'', remark:'', address:address };
   return new Promise(function(resolve){
-    var waited = 0;
-    function finish(text){ resolve(coverageFromPorts(parsePortsText(text), address)); }
-    function again(){ waited += COV_POLL_MS; if(waited >= COV_WAIT_MS) finish(null); else setTimeout(poll, COV_POLL_MS); }
-    function poll(){
-      try{
-        if(!window.WH_SB){ finish(null); return; }
-        window.WH_SB.rpc('get_coverage_by_address', { p_full_address: address||'' }).then(function(r){
-          var t = (!r.error && r.data) ? String(r.data).trim() : '';
-          if(t) finish(t); else again();
-        }, again);
-      }catch(e){ finish(null); }
-    }
-    poll();
+    try{
+      if(!window.WH_SB){ resolve(FAIL); return; }
+      window.WH_SB.rpc('request_coverage', { p_address: address || '' }).then(function(r){
+        if(r.error || !r.data){ resolve(FAIL); return; }
+        var reqid = String(r.data), waited = 0, POLL = 3000, MAX = 190000;
+        function done(row){
+          var ports = Array.isArray(row.ports) ? row.ports : [];
+          resolve({
+            available: true,
+            quality: ports.length ? 'Excellent' : (row.coveragestatus === 'notavailable' ? 'Limited' : 'Checking'),
+            networks: ports.slice(),
+            ports: ports,
+            pending: false,
+            coveragestatus: row.coveragestatus || '',
+            remark: row.remark || '',
+            address: address
+          });
+        }
+        function poll(){
+          window.WH_SB.rpc('get_coverage', { p_requestid: reqid }).then(function(g){
+            var row = (!g.error && g.data && g.data.length) ? g.data[0] : null;
+            if(row && row.status === 'done'){ done(row); return; }
+            if(row && row.status === 'failed'){ resolve(FAIL); return; }
+            waited += POLL;
+            if(waited >= MAX){ resolve(FAIL); return; }
+            setTimeout(poll, POLL);
+          }, function(){
+            waited += POLL;
+            if(waited >= MAX) resolve(FAIL); else setTimeout(poll, POLL);
+          });
+        }
+        poll();
+      }, function(){ resolve(FAIL); });
+    }catch(e){ resolve(FAIL); }
   });
 }
 // SAMPLE catalogue (placeholder — real catalogue comes from backend)
@@ -2472,16 +2506,16 @@ var SAMPLE_CATALOGUE = [
   "contract": "36 months",
   "router": "Combo Box (RG-BTU) + Mesh WiFi 6",
   "promotion": "",
-  "free_gift": "Smart TV 43\" (RRP RM1,899)",
+  "free_gift": "FREE Smart TV 43\" (RRP RM1,899)",
   "installation": "",
-  "remarks": "Business winback. Attach current telco bill. No upfront device payment. Incl 6% SST. TV delivery 60 working days.",
+  "remarks": "Business Winback. Free device: Smart TV 43\". Voice: pay-as-you-use (TM fixed / mobile / other fixed lines 20 sen/min). No upfront device payment. Attach current telco bill. Price perpetual, incl 6% SST. Smart TV delivery 60 working days after successful installation. Option availability depends on selected package.",
   "priority": 1,
-  "source": "flyer_04"
- },
+  "source": "flyer_bizwb_v2"
+},
  {
   "id": "unifi_bizwb_500_tv",
   "provider": "Unifi",
-  "plan_name": "Unifi Business Winback 500Mbps (Free TV/iPad)",
+  "plan_name": "Unifi Business Winback 500Mbps (Free TV)",
   "market_type": "business",
   "customer_type": "transfer_user",
   "service_type": "fibre",
@@ -2495,16 +2529,16 @@ var SAMPLE_CATALOGUE = [
   "contract": "36 months",
   "router": "Combo Box (RG-BTU) + Mesh WiFi 6",
   "promotion": "",
-  "free_gift": "Sharp TV 55\" (RRP RM3,199) OR iPad 11\" A16 128GB (RRP RM1,599)",
+  "free_gift": "FREE Sharp TV 55\" (RRP RM3,199)",
   "installation": "",
-  "remarks": "Business winback. Choice of TV or iPad. Incl 6% SST.",
+  "remarks": "Business Winback. Free device: Sharp TV 55\". Voice: pay-as-you-use (TM fixed / mobile / other fixed lines 20 sen/min). No upfront device payment. Attach current telco bill. Price perpetual, incl 6% SST. Smart TV delivery 60 working days after successful installation. Option availability depends on selected package.",
   "priority": 1,
-  "source": "flyer_04"
- },
+  "source": "flyer_bizwb_v2"
+},
  {
   "id": "unifi_bizwb_300_shield",
   "provider": "Unifi",
-  "plan_name": "Unifi Business Winback 300Mbps (Business Shield)",
+  "plan_name": "Unifi Business Winback 300Mbps (Business Shield Standard)",
   "market_type": "business",
   "customer_type": "transfer_user",
   "service_type": "fibre",
@@ -2518,12 +2552,12 @@ var SAMPLE_CATALOGUE = [
   "contract": "36 months",
   "router": "Combo Box (RG-BTU) + Mesh WiFi 6",
   "promotion": "",
-  "free_gift": "Business Shield Standard (2x AI indoor cam, 1x solar cam, hub, sensors, 7-day cloud)",
+  "free_gift": "Business Shield Standard: Smart App by Unifi Business, 2× AI indoor camera, 1× solar outdoor camera, 7-day video cloud storage, 1× smart hub, 1× smart door/window sensor, 1× smart motion sensor",
   "installation": "",
-  "remarks": "Business winback + security bundle.",
+  "remarks": "Business Winback + security bundle. Voice: pay-as-you-use (TM fixed / mobile / other fixed lines 20 sen/min). No upfront device payment. Attach current telco bill. Price perpetual, incl 6% SST. Option availability depends on selected package.",
   "priority": 2,
-  "source": "flyer_04"
- },
+  "source": "flyer_bizwb_v2"
+},
  {
   "id": "unifi_bizwb_500_shield",
   "provider": "Unifi",
@@ -2541,12 +2575,104 @@ var SAMPLE_CATALOGUE = [
   "contract": "36 months",
   "router": "Combo Box (RG-BTU) + Mesh WiFi 6",
   "promotion": "",
-  "free_gift": "Business Shield Plus (2x AI indoor cam, 2x solar cam, hub, sensors, 7-day cloud)",
+  "free_gift": "Business Shield Plus: Smart App by Unifi Business, 2× AI indoor camera, 2× solar outdoor camera, 7-day video cloud storage, 1× smart hub, 2× smart door/window sensor, 1× smart motion sensor",
   "installation": "",
-  "remarks": "Business winback + security bundle.",
+  "remarks": "Business Winback + security bundle. Voice: pay-as-you-use (TM fixed / mobile / other fixed lines 20 sen/min). No upfront device payment. Attach current telco bill. Price perpetual, incl 6% SST. Option availability depends on selected package.",
   "priority": 2,
-  "source": "flyer_04"
- },
+  "source": "flyer_bizwb_v2"
+},
+ {
+  "id": "maxis_ngbb_ss_300",
+  "provider": "Maxis",
+  "plan_name": "Maxis Home Fibre 300Mbps — Super Saver (NGBB)",
+  "market_type": "consumer",
+  "customer_type": "both",
+  "service_type": "fibre",
+  "postpaid_required": "no",
+  "eligible_postpaid_provider": [],
+  "min_postpaid_commitment": "",
+  "infra": "NGBB infra only (OLO or NEW)",
+  "speed": "300Mbps",
+  "price": "99",
+  "price_normal": "139",
+  "contract": "24 months",
+  "router": "FREE WiFi 6 Router",
+  "promotion": "Rebate RM40 (already applied)",
+  "free_gift": "",
+  "installation": "Free (Maxperts) + after-sales service",
+  "remarks": "Home Fibre Super Saver NGBB. Next-gen WiFi 6 router, wider coverage. Maxis Zerolution — RM0 upfront, low monthly. Price shown already after rebate. Limited to NGBB infra (OLO or NEW). Promo period 5 Sep – 5 Dec.",
+  "priority": 1,
+  "source": "flyer_ngbb_supersaver"
+},
+ {
+  "id": "maxis_ngbb_ss_500",
+  "provider": "Maxis",
+  "plan_name": "Maxis Home Fibre 500Mbps — Super Saver (NGBB)",
+  "market_type": "consumer",
+  "customer_type": "both",
+  "service_type": "fibre",
+  "postpaid_required": "no",
+  "eligible_postpaid_provider": [],
+  "min_postpaid_commitment": "",
+  "infra": "NGBB infra only (OLO or NEW)",
+  "speed": "500Mbps",
+  "price": "129",
+  "price_normal": "159",
+  "contract": "24 months",
+  "router": "FREE WiFi 6 Router",
+  "promotion": "Rebate RM30 (already applied)",
+  "free_gift": "",
+  "installation": "Free (Maxperts) + after-sales service",
+  "remarks": "Home Fibre Super Saver NGBB. Next-gen WiFi 6 router, wider coverage. Maxis Zerolution — RM0 upfront, low monthly. Price shown already after rebate. Limited to NGBB infra (OLO or NEW). Promo period 5 Sep – 5 Dec.",
+  "priority": 1,
+  "source": "flyer_ngbb_supersaver"
+},
+ {
+  "id": "maxis_ngbb_ss_1g",
+  "provider": "Maxis",
+  "plan_name": "Maxis Home Fibre 1Gbps — Super Saver (NGBB)",
+  "market_type": "consumer",
+  "customer_type": "both",
+  "service_type": "fibre",
+  "postpaid_required": "no",
+  "eligible_postpaid_provider": [],
+  "min_postpaid_commitment": "",
+  "infra": "NGBB infra only (OLO or NEW)",
+  "speed": "1Gbps",
+  "price": "159",
+  "price_normal": "249",
+  "contract": "24 months",
+  "router": "FREE WiFi 6 Router",
+  "promotion": "Rebate RM90 (already applied)",
+  "free_gift": "",
+  "installation": "Free (Maxperts) + after-sales service",
+  "remarks": "Home Fibre Super Saver NGBB. Next-gen WiFi 6 router, wider coverage. Maxis Zerolution — RM0 upfront, low monthly. Price shown already after rebate. Limited to NGBB infra (OLO or NEW). Promo period 5 Sep – 5 Dec.",
+  "priority": 1,
+  "source": "flyer_ngbb_supersaver"
+},
+ {
+  "id": "maxis_ngbb_ss_2g",
+  "provider": "Maxis",
+  "plan_name": "Maxis Home Fibre 2Gbps — Super Saver (NGBB)",
+  "market_type": "consumer",
+  "customer_type": "both",
+  "service_type": "fibre",
+  "postpaid_required": "no",
+  "eligible_postpaid_provider": [],
+  "min_postpaid_commitment": "",
+  "infra": "NGBB infra only (OLO or NEW)",
+  "speed": "2Gbps",
+  "price": "319",
+  "price_normal": "",
+  "contract": "24 months",
+  "router": "WiFi 6E Router",
+  "promotion": "No rebate (N/A)",
+  "free_gift": "",
+  "installation": "Free (Maxperts) + after-sales service",
+  "remarks": "Home Fibre Super Saver NGBB. Next-gen WiFi 6 router, wider coverage. Maxis Zerolution — RM0 upfront, low monthly. Price shown already after rebate. Limited to NGBB infra (OLO or NEW). Promo period 5 Sep – 5 Dec.",
+  "priority": 2,
+  "source": "flyer_ngbb_supersaver"
+},
  {
   "id": "maxis_home_300_new_36",
   "provider": "Maxis",
@@ -3046,11 +3172,11 @@ var SAMPLE_CATALOGUE = [
   "id": "cd_biz_300",
   "provider": "CelcomDigi",
   "plan_name": "CelcomDigi Business Fibre 300Mbps",
-  "market_type": "business",
+  "market_type": "both",
   "customer_type": "both",
   "service_type": "fibre",
-  "postpaid_required": "no",
-  "eligible_postpaid_provider": [],
+  "postpaid_required": "yes",
+  "eligible_postpaid_provider": ["CelcomDigi", "Celcom", "Digi"],
   "min_postpaid_commitment": "",
   "infra": "",
   "speed": "300Mbps",
@@ -3069,11 +3195,11 @@ var SAMPLE_CATALOGUE = [
   "id": "cd_biz_500",
   "provider": "CelcomDigi",
   "plan_name": "CelcomDigi Business Fibre 500Mbps",
-  "market_type": "business",
+  "market_type": "both",
   "customer_type": "both",
   "service_type": "fibre",
-  "postpaid_required": "no",
-  "eligible_postpaid_provider": [],
+  "postpaid_required": "yes",
+  "eligible_postpaid_provider": ["CelcomDigi", "Celcom", "Digi"],
   "min_postpaid_commitment": "",
   "infra": "",
   "speed": "500Mbps",
@@ -3092,11 +3218,11 @@ var SAMPLE_CATALOGUE = [
   "id": "cd_biz_1g",
   "provider": "CelcomDigi",
   "plan_name": "CelcomDigi Business Fibre 1Gbps",
-  "market_type": "business",
+  "market_type": "both",
   "customer_type": "both",
   "service_type": "fibre",
-  "postpaid_required": "no",
-  "eligible_postpaid_provider": [],
+  "postpaid_required": "yes",
+  "eligible_postpaid_provider": ["CelcomDigi", "Celcom", "Digi"],
   "min_postpaid_commitment": "",
   "infra": "",
   "speed": "1Gbps",
@@ -3705,29 +3831,44 @@ var SAMPLE_CATALOGUE = [
 ];
 try{ window.WH_PACKAGES = SAMPLE_CATALOGUE; }catch(e){}
 try{ window.WH_DEVICES = maxisAddonDevices; }catch(e){}
-// Coverage gate — hides ONLY what the real check CONFIRMED unavailable.
-// "still checking"/unknown never hides a package (the team verifies manually).
-function coverageAllows(p, cov){
-  if(!cov || !cov.ports) return true;
-  var ports = cov.ports, prov = (p.provider||'').toLowerCase(), inf = (p.infra||'').toLowerCase();
-  if(p.service_type === 'broadband_5g'){
-    if(prov.indexOf('u mobile')>=0 || prov.indexOf('umobile')>=0)
-      return !ports.umobile.done || ports.umobile.techs.indexOf('ULTRA5G')>=0 || ports.umobile.techs.indexOf('5G')>=0;
-    if(prov === 'yes') return !ports.yes.done || ports.yes.techs.indexOf('5G')>=0;
-    return true;                                    // other 5G networks: no check signal -> keep
-  }
-  if(!ports.fibre.done) return true;                // fibre still checking -> never hide fibre plans
-  var f = ports.fibre.ports;
-  if(prov === 'unifi')      return f.indexOf('TM')>=0;
-  if(prov === 'time')       return f.indexOf('TIME')>=0;
-  if(prov === 'celcomdigi') return f.indexOf('TM')>=0 || f.indexOf('ALLO')>=0;  // CelcomDigi fibre rides TM/Allo
-  if(prov === 'maxis'){                             // plain Maxis = NGBB; infra says if it rides HSBA(TM)/ALLO/CTS/SACOFA instead
-    if(f.indexOf('NGBB')>=0 && !/excl[^)]*ngbb/.test(inf)) return true;
-    if(f.indexOf('TM')>=0 && /hsba|cts|sacofa/.test(inf)) return true;
-    if(f.indexOf('ALLO')>=0 && /allo/.test(inf)) return true;
-    return false;
-  }
-  return true;                                      // unknown provider -> keep
+// ── REAL PORT MAP (Eric's signed-off spreadsheet — BUILD BRIEF v2 §8. DO NOT ALTER.) ──
+// Which physical port(s) each plan can run on. "NOT_PORT_GATED" = U Mobile 5G
+// wireless, exempt from the port filter entirely. Attached to every package below.
+var WH_PORTS = {
+  unifi_home_300:["TM"], unifi_home_500:["TM"], unifi_home_1g:["TM"], unifi_home_2g:["TM"],
+  unifi_winback_300:["TM"], unifi_winback_500:["TM"], unifi_winback_1g:["TM"],
+  unifi_biz_300:["TM"], unifi_biz_500:["TM"], unifi_biz_1g:["TM"], unifi_biz_2g:["TM"],
+  unifi_bizwb_300_tv:["TM"], unifi_bizwb_500_tv:["TM"], unifi_bizwb_300_shield:["TM"], unifi_bizwb_500_shield:["TM"],
+  maxis_ngbb_ss_300:["NGBB"], maxis_ngbb_ss_500:["NGBB"], maxis_ngbb_ss_1g:["NGBB"], maxis_ngbb_ss_2g:["NGBB"],
+  maxis_home_300_new_36:["TM"], maxis_home_300_new_24:["TM"], maxis_home_500:["TM"], maxis_home_1g:["TM"], maxis_home_2g:["TM"],
+  maxis_switch_300:["TM"], maxis_switch_500:["TM"], maxis_switch_1g:["TM"], maxis_switch_2g:["TM"],
+  maxis_biz_dyn_300:["TM"], maxis_biz_dyn_500:["TM"], maxis_biz_dyn_1g:["TM"],
+  maxis_biz_fix_300:["TM"], maxis_biz_fix_500:["TM"], maxis_biz_fix_1g:["TM"],
+  maxis_pp_300:["TM"], maxis_pp_500:["TM"], maxis_pp_1g:["TM"],
+  maxis_trpp_300:["TM"], maxis_trpp_500:["TM"], maxis_trpp_1g:["TM"],
+  cd_biz_300:["TM"], cd_biz_500:["TM"], cd_biz_1g:["TM"],
+  cd_ob_sa_300:["ALLO","OB"], cd_ob_sa_500:["ALLO","OB"], cd_ob_sa_1g:["ALLO","OB"],
+  cd_ex_300:["TM","TIME"], cd_ex_500:["TM","TIME"], cd_ex_1g:["TM","TIME"], cd_ex_2g:["TM","TIME"],
+  cd_sa_300:["TM","TIME"], cd_sa_500:["TM","TIME"], cd_sa_1g:["TM","TIME"], cd_sa_2g:["TM","TIME"],
+  cd_biz_ye_300:["TM"], cd_biz_ye_500:["TM"], cd_biz_ye_1g:["TM"],
+  cd_biz_ctsb_300:["ALLO","OB"], cd_biz_ctsb_500:["ALLO","OB"], cd_biz_ctsb_1g:["ALLO","OB"],
+  umobile_uhome_5g:"NOT_PORT_GATED", umobile_5g_office:"NOT_PORT_GATED",
+  umobile_borneo_sabah_router:"NOT_PORT_GATED", umobile_borneo_swk_router:"NOT_PORT_GATED",
+  time_home_200:["TIME"], time_home_600:["TIME"], time_home_1g:["TIME"], time_home_2g:["TIME"]
+};
+SAMPLE_CATALOGUE.forEach(function(p){ p.ports = (WH_PORTS[p.id] !== undefined) ? WH_PORTS[p.id] : []; });
+
+// ── Coverage gate (BUILD BRIEF v2 §9.2 + §10 safety rule) ──
+// A package is hidden ONLY when its required port is CONFIRMED absent.
+// Unknown / failed / timed out / needmoreinfo / "still checking" -> SHOW.
+function portAllows(p, cov){
+  if (p.ports === 'NOT_PORT_GATED') return true;                  // U Mobile 5G wireless: exempt
+  if (!Array.isArray(p.ports) || !p.ports.length) return true;    // unmapped plan -> never hide
+  if (!cov || cov.pending) return true;                           // check failed / timed out -> show
+  if (cov.coveragestatus === 'needmoreinfo') return true;         // safety rule
+  if (!Array.isArray(cov.ports)) return true;                     // no port data -> show
+  var found = cov.ports.map(function(x){ return String(x).toUpperCase(); });  // case-insensitive: 'Allo' vs 'ALLO'
+  return p.ports.some(function(x){ return found.indexOf(String(x).toUpperCase()) >= 0; });
 }
 // Eligibility filter — shows ONLY packages the customer qualifies for, then ranks the
 // most relevant to their answers first so the top 3 cards fit their situation.
@@ -3739,14 +3880,14 @@ function eligiblePackages(d){
   var cur = d.currentProvider || '';
   function isCurrent(prov){ return !!cur && !!prov && cur.toLowerCase().indexOf(prov.toLowerCase()) >= 0; }
   var list = SAMPLE_CATALOGUE.filter(function(p){
-    if (p.market_type && p.market_type !== mt) return false;
+    if (!portAllows(p, d.coverage)) return false;                                    // real coverage gate (in FRONT of all existing filters)
+    if (p.market_type && p.market_type !== 'both' && p.market_type !== mt) return false;   // 'both' now supported (CI plans)
     if (p.customer_type && p.customer_type !== 'both' && p.customer_type !== ct) return false;
     if (p.postpaid_required === 'yes'){
       if (!hasPost) return false;
       if (p.eligible_postpaid_provider && p.eligible_postpaid_provider.length && pp && p.eligible_postpaid_provider.indexOf(pp) < 0) return false;
     }
     if (ct === 'transfer_user' && isCurrent(p.provider)) return false;   // switchers must move to a DIFFERENT provider than their current one
-    if (!coverageAllows(p, d.coverage)) return false;                    // real coverage result (confirmed-unavailable only)
     return true;
   });
   function score(p){
@@ -3834,10 +3975,7 @@ function submitApplication(data){
 function buildReasons(rec, alts){
   var r = [];
   // coverage
-  if (userData.coverage && userData.coverage.pending && !(userData.coverage.networks||[]).length)
-    r.push('Coverage is still being confirmed at your address — our team verifies before installation.');
-  else
-    r.push('Available at your address' + (userData.coverage && userData.coverage.quality ? ' — ' + userData.coverage.quality.toLowerCase() + ' coverage' : '') + '.');
+  r.push('Available at your address' + (userData.coverage && userData.coverage.quality ? ' — ' + userData.coverage.quality.toLowerCase() + ' coverage' : '') + '.');
   // eligibility (why THEY qualify)
   if (userData.postpaid === 'yes' && userData.postpaidProvider && rec && rec.postpaid_required === 'yes')
     r.push("You're eligible with your existing " + userData.postpaidProvider + ' postpaid.');
@@ -3865,7 +4003,7 @@ function renderResult(){
   var rec = getRecommendedPackage(userData);
   var alts = getAlternativePackages(userData);
   var reasons = buildReasons(rec, alts);
-  $('resultSub').textContent = 'Based on your answers' + (userData.coverage && userData.coverage.quality ? ' and ' + userData.coverage.quality.toLowerCase() + ' coverage' : '') + ' at "' + (userData.address||'') + '".';
+  $('resultSub').textContent = 'Based on your answers and ' + (userData.coverage ? userData.coverage.quality.toLowerCase() : '') + ' coverage at "' + (userData.address||'') + '".';
   if(!rec){ $('resultBody').innerHTML='<div class="reccard" style="text-align:center"><span class="badge">Eligibility</span><h3 class="rec-name" style="margin-top:8px">No matching package yet</h3><p style="color:var(--muted);line-height:1.6;margin:12px 0 0">Based on your answers, none of our current packages match your eligibility. Tap WhatsApp and our team will help you directly.</p></div>'; $('resultSub').textContent=''; showScreen('result'); return; }
   function _dr(k,v){ return '<div class="dr"><span>'+k+'</span><b>'+(v||'—')+'</b></div>'; }
   function _chips(p){ var c=''; if(/7/.test(p.router||''))c+='<span class="rchip" style="color:#c9b3ff;background:rgba(139,92,246,.15);border-color:rgba(139,92,246,.45)">📶 WiFi 7 Router</span>'; if(p.promotion)c+='<span class="rchip">🎉 '+p.promotion+'</span>'; if(p.free_gift&&p.free_gift!=='—')c+='<span class="rchip">🎁 '+p.free_gift+'</span>'; if(p.cashback&&p.cashback!=='—')c+='<span class="rchip">💰 '+p.cashback+' cashback</span>'; if(p.installation&&/free/i.test(p.installation))c+='<span class="rchip">🔧 Free installation</span>'; return c?'<div class="rec-chips">'+c+'</div>':''; }
@@ -3897,7 +4035,6 @@ function renderResult(){
   if (!REDUCED && innerWidth > 600) burstConfetti();
   $('applyBtn').addEventListener('click', function(){
     selectedPackage = rec; selectedAddonDevices = [];
-    try{ if(window.WH_track) window.WH_track('apply',{provider:rec.provider, plan:rec.plan_name}); }catch(e){}
     if (availableDevices(rec).length){ renderDevices(rec); showScreen('devices'); return; }
     try{ window.WH_order = { profile:customerProfile, package:selectedPackage, addonDevices:selectedAddonDevices }; }catch(e){}
     submitApplication(userData).then(function(res){
@@ -4116,25 +4253,6 @@ window.whImg = function(key, fallback, cls){
   window.WH_openPlans=function(){ toProviders(); show(); };
 })();
 </script>
-<!-- surprise promo popup -->
-<div id="promo-modal"><div class="promo-card"><button id="promo-x" aria-label="Close">✕</button><div class="promo-spark">🎉</div><div class="promo-art" id="promo-art"></div><h3>Your BIG upgrade is here!</h3><p class="promo-line1">Get a <b>55&quot; or 65&quot; 4K Smart TV</b> — FREE add-on 📺</p><div class="promo-deal"><span>300Mbps now only</span><b>RM89<i>/mo</i></b></div><p class="promo-line2">📶 Plus the latest <b>WiFi 7 Router</b> for a faster, wider connection.</p><div class="promo-cta"><button class="promo-btn primary" id="promo-find">Find My Plan →</button><button class="promo-btn" id="promo-plans">See all plans</button></div><div class="promo-fine">*Selected plans &amp; devices. Terms apply.</div></div></div>
-<script>
-(function(){
-  var m=document.getElementById('promo-modal'); if(!m) return;
-  var _TV='<svg viewBox="0 0 120 84" width="86" height="60" xmlns="http://www.w3.org/2000/svg"><rect x="4" y="3" width="112" height="64" rx="7" fill="#111318" stroke="#E60012" stroke-width="3"/><rect x="11" y="10" width="98" height="50" rx="3" fill="#2a0d18"/><text x="60" y="42" font-size="20" fill="#E60012" text-anchor="middle" font-family="monospace" font-weight="bold">4K</text><rect x="50" y="67" width="20" height="6" fill="#E60012"/><rect x="40" y="77" width="40" height="5" rx="2" fill="#444"/></svg>';
-  var _RT='<svg viewBox="0 0 90 70" width="66" height="52" xmlns="http://www.w3.org/2000/svg"><line x1="26" y1="42" x2="20" y2="18" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/><line x1="64" y1="42" x2="70" y2="18" stroke="#8b5cf6" stroke-width="2.5" stroke-linecap="round"/><path d="M37 20a17 17 0 0 1 24 0" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M43 27a9 9 0 0 1 12 0" stroke="#8b5cf6" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="10" y="42" width="70" height="22" rx="6" fill="#141018" stroke="#8b5cf6" stroke-width="2.5"/><circle cx="24" cy="53" r="3" fill="#8b5cf6"/><rect x="34" y="51" width="38" height="4" rx="2" fill="#333"/></svg>';
-  var _pa=document.getElementById('promo-art'); if(_pa) _pa.innerHTML=(window.whImg?window.whImg('promo_tv',_TV,'promo-photo'):_TV)+(window.whImg?window.whImg('promo_router',_RT,'promo-photo'):_RT);
-  function closeP(){ m.classList.remove('open'); }
-  function openFinder(){ var e=document.querySelectorAll('button,a'); for(var i=0;i<e.length;i++){ if(/find my plan/i.test(e[i].textContent||'') && !e[i].closest('#promo-modal')){ e[i].click(); return; } } }
-  document.getElementById('promo-x').addEventListener('click', closeP);
-  m.addEventListener('click', function(e){ if(e.target===m) closeP(); });
-  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && m.classList.contains('open')) closeP(); });
-  document.getElementById('promo-find').addEventListener('click', function(){ closeP(); openFinder(); });
-  document.getElementById('promo-plans').addEventListener('click', function(){ closeP(); if(window.WH_openPlans) window.WH_openPlans(); });
-  var seen=false; try{ seen=sessionStorage.getItem('wh_promo')==='1'; }catch(e){}
-  if(!seen){ setTimeout(function(){ m.classList.add('open'); try{ sessionStorage.setItem('wh_promo','1'); }catch(e){} }, 900); }
-})();
-</script>
 <script>
 (function(){ if(document.documentElement.classList.contains('lite')) return;
   var f=0,s=performance.now();
@@ -4157,12 +4275,6 @@ window.whImg = function(key, fallback, cls){
       }).then(function(r){ if(r.error)console.warn("lead save:",r.error.message); return {ok:!r.error}; }).catch(function(e){ return {ok:false}; });
     }catch(e){ return Promise.resolve({ok:false}); }
   };
-  // ---- analytics tracking ----
-  window.WH_device = /Mobi|Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent||'') ? 'mobile' : 'desktop';
-  window.WH_vid = (function(){ var k='wh_vid',v=''; try{v=localStorage.getItem(k)||'';}catch(e){} if(!v){v='v_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8); try{localStorage.setItem(k,v);}catch(e){}} return v; })();
-  window.WH_track = function(type, o){ o=o||{}; try{ if(window.WH_SB) window.WH_SB.rpc('log_event', { p_type:type, p_visitor:window.WH_vid, p_device:window.WH_device, p_provider:o.provider||'', p_plan:o.plan||'', p_area:o.area||'' }).then(function(r){ if(r&&r.error)console.warn('track:',r.error.message); }, function(){}); }catch(e){} };
-  try{ if(!sessionStorage.getItem('wh_visit')){ sessionStorage.setItem('wh_visit','1'); window.WH_track('visit'); } }catch(e){ window.WH_track('visit'); }
-  document.addEventListener('click', function(e){ if(!e.isTrusted) return; var t=e.target; if(!t||!t.closest) return; var a=t.closest('a[href*="wa.me"], a[href*="whatsapp"]'); if(a){ window.WH_track('whatsapp_click'); return; } var b=t.closest('button,a'); if(b && /find my plan|查找我的配套/i.test(b.textContent||'')){ window.WH_track('find_my_plan'); } }, true);
 })();
 </script>
 </body>
