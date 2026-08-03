@@ -1,0 +1,20 @@
+{
+  "redirects": [
+    { "source": "/contact",                 "destination": "/#contact", "permanent": true },
+    { "source": "/contact/",                "destination": "/#contact", "permanent": true },
+    { "source": "/about",                   "destination": "/#why",     "permanent": true },
+    { "source": "/about/",                  "destination": "/#why",     "permanent": true },
+    { "source": "/about-us",                "destination": "/#why",     "permanent": true },
+    { "source": "/covered-area",            "destination": "/",         "permanent": true },
+    { "source": "/covered-area/",           "destination": "/",         "permanent": true },
+    { "source": "/maxis",                   "destination": "/",         "permanent": true },
+    { "source": "/maxis/",                  "destination": "/",         "permanent": true },
+    { "source": "/privacy-policy",          "destination": "/",         "permanent": true },
+    { "source": "/privacy-policy/",         "destination": "/",         "permanent": true },
+    { "source": "/category/uncategorized",  "destination": "/",         "permanent": true },
+    { "source": "/category/uncategorized/", "destination": "/",         "permanent": true },
+    { "source": "/category/:slug*",         "destination": "/",         "permanent": true },
+    { "source": "/hello-world",             "destination": "/",         "permanent": true },
+    { "source": "/hello-world/",            "destination": "/",         "permanent": true }
+  ]
+}
